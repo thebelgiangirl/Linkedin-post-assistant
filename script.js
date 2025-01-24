@@ -2,7 +2,7 @@ async function sendMessage() {
   // ... (your existing code)
 
   // Call your n8n webhook URL
-  const response = await fetch('https://n8n-e2tg.onrender.com/webhook-test/3124586d-9fcc-42dc-8281-0fdc70704fc7', {
+  const response = await fetch('https://n8n-e2tg.onrender.com/webhook-test/24612585-db6c-4b84-b28b-4f258b1baa7a', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message: userInput }),
