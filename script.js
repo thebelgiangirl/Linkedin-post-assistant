@@ -1,19 +1,34 @@
 async function sendMessage() {
-  // ... (your existing code)
+  // 1. Récupérer le message de l'utilisateur
+  const userInput = document.getElementById('userInput').value;
+  if (!userInput) return; // Ne rien faire si le champ est vide
 
-  // Call your n8n webhook URL
-  const response = await fetch('https://n8n-e2tg.onrender.com/webhook/3124586d-9fcc-42dc-8281-0fdc70704fc7', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: userInput }),
-  });
+  // 2. Afficher le message de l'utilisateur
+  const chatbox = document.getElementById('chatbox');
+  chatbox.innerHTML += `<div class="user-message">${userInput}</div>`;
 
-  // Process the RESPONSE from your workflow
-  const data = await response.json();
-  const posts = data.posts; // Adjust based on your final output
+  try {
+    // 3. Envoyer au webhook
+    const response = await fetch('https://n8n-e2tg.onrender.com/webhook/3124586d-9fcc-42dc-8281-0fdc70704fc7', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userInput, url: userInput }), // Envoie les deux champs
+    });
 
-  // Display posts in chat
-  posts.forEach(post => {
-    chatbox.innerHTML += `<div class="bot-message">📝 ${post.title}<br>${post.content}</div>`;
-  });
+    // 4. Gérer les erreurs
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    // 5. Afficher la réponse
+    const data = await response.json();
+    data.posts.forEach(post => {
+      chatbox.innerHTML += `<div class="bot-message">📝 ${post.title}<br>${post.content}</div>`;
+    });
+
+  } catch (error) {
+    chatbox.innerHTML += `<div class="error">❌ Erreur : ${error.message}</div>`;
+  }
+
+  // 6. Vider le champ et scroll automatique
+  document.getElementById('userInput').value = '';
+  chatbox.scrollTop = chatbox.scrollHeight;
 }
