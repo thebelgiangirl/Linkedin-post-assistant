@@ -55,13 +55,18 @@ async function sendMessage() {
     `;
 
   } catch (error) {
-    chatbox.innerHTML += `
-      <div class="error">
-        ❌ Error: ${error.message.replace('Robot confused! Error code: 500', 'Server error - check workflow configuration')}
-      </div>
-    `;
-    console.error('Full error:', error);
+  let errorMessage = error.message;
+  if (error.message.includes('Failed to fetch')) {
+    errorMessage = 'Connection failed! Check: \n1. Internet connection \n2. Server URL \n3. Workflow activation';
   }
+  
+  chatbox.innerHTML += `
+    <div class="error">
+      ❌ Error: ${errorMessage}
+    </div>
+  `;
+  console.error('Full error:', error);
+}
 
   document.getElementById('userInput').value = '';
   chatbox.scrollTop = chatbox.scrollHeight;
