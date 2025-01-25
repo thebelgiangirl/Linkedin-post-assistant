@@ -59,3 +59,14 @@ button:hover {
   color: red;
   padding: 8px;
 }
+
+.post-content p {
+  margin: 0.8em 0;
+  line-height: 1.5;
+}
+
+.post-content br {
+  content: "";
+  display: block;
+  margin: 0.4em 0;
+}
