@@ -6,68 +6,63 @@ async function sendMessage() {
   chatbox.innerHTML += `<div class="user-message">${userInput}</div>`;
 
   try {
-    // 1. Send message to robot helper
+    // 1. Send request
     const response = await fetch('https://n8n-e2tg.onrender.com/webhook-test/3124586d-9fcc-42dc-8281-0fdc70704fc7', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: userInput, url: userInput }),
-      mode: 'cors', // Magic school permission
-      credentials: 'same-origin' // Secret handshake
+      mode: 'cors',
+      credentials: 'same-origin'
     });
 
-    // 2. Get robot's answer
+    // 2. Get response text FIRST
     const responseText = await response.text();
-    console.log('Robot said:', responseText); // Secret spy glass
 
-    // 3. Check for robot errors
+    // 3. Detailed error logging
+    console.log('Status:', response.status);
+    console.log('Headers:', [...response.headers]);
+    console.log('Body:', responseText);
+
+    // 4. Check for HTTP errors
     if (!response.ok) {
-      let errorMessage = `Robot confused! Error code: ${response.status}`;
+      let errorData;
       try {
-        const errorData = JSON.parse(responseText);
-        errorMessage = errorData.error || errorMessage;
+        errorData = JSON.parse(responseText);
       } catch {
-        errorMessage = responseText || errorMessage;
+        errorData = { error: responseText };
       }
-      throw new Error(errorMessage);
+      throw new Error(errorData.error || `HTTP Error ${response.status}`);
     }
 
-    // 4. Split message into title/content
+    // 5. Validate response format
     if (!responseText.includes('//')) {
-      throw new Error('Robot made messy pizza! 🍕🔥 (Missing // separator)');
+      throw new Error(`Robot sent bad format: ${responseText.substring(0, 50)}...`);
     }
-    
+
+    // 6. Process response
     const [title, content] = responseText.split('//\n');
-    const safeTitle = title?.trim() || 'Awesome Post! 🚀';
-    const safeContent = content?.trim() || 'Content loading... ⌛';
+    const formattedContent = content
+      .split('\n\n')
+      .map(p => p.replace(/\n/g, '<br>'))
+      .join('</p><p>')
+      .replace(/^(.*)$/, '<p>$1</p>');
 
-    // 5. Make text pretty with lines and spaces
-    const formattedContent = safeContent
-      .split('\n\n') // Cut between paragraphs
-      .map(paragraph => 
-        paragraph.replace(/\n/g, '<br>') // Add line breaks
-      )
-      .join('</p><p>') // Wrap in boxes
-      .replace(/^(.*)$/, '<p>$1</p>'); // Final box wrap
-
-    // 6. Show robot's message
     chatbox.innerHTML += `
       <div class="bot-message">
-        <strong>📝 ${safeTitle}</strong>
+        <strong>📝 ${title?.trim() || 'New Post'}</strong>
         <div class="post-content">${formattedContent}</div>
       </div>
     `;
 
   } catch (error) {
-    // 7. Show error message
     chatbox.innerHTML += `
       <div class="error">
-        ❌ Oops! Robot needs help: ${error.message}
+        ❌ Error: ${error.message.replace('Robot confused! Error code: 500', 'Server error - check workflow configuration')}
       </div>
     `;
-    console.error('Robot error:', error);
+    console.error('Full error:', error);
   }
 
-  // 8. Clean up and scroll
   document.getElementById('userInput').value = '';
   chatbox.scrollTop = chatbox.scrollHeight;
 }
