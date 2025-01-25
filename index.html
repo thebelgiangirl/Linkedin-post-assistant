@@ -1,17 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My Chatbot</title>
+  <title>LinkedIn Post Assistant</title>
   <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
   <div class="chat-container">
-    <div id="chatbox"></div>
+    <div class="chat-header">
+      <h1 class="chat-title">💡 Your LinkedIn Post Assistant 🚀</h1>
+      <p class="chat-subtitle">Turn any link into a scroll-stopping LinkedIn post!</p>
+    </div>
+    
+    <div id="chatbox">
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot" style="animation-delay: 0.2s"></div>
+        <div class="typing-dot" style="animation-delay: 0.4s"></div>
+      </div>
+    </div>
+
     <div class="input-container">
-      <input type="text" id="userInput" placeholder="Écrivez ici...">
-      <button type="button" onclick="sendMessage()">Envoyer 🚀</button>
+      <input type="text" 
+             id="userInput" 
+             placeholder="🔗 Paste the link here...">
+      <button type="button" onclick="sendMessage()">
+        🔥 Create Post 
+        <span style="font-size: 1.2em">✨</span>
+      </button>
+    </div>
+
+    <div class="chat-footer">
+      Crafting your LinkedIn magic, one post at a time ✨
     </div>
   </div>
+  
   <script src="script.js"></script>
 </body>
 </html>
