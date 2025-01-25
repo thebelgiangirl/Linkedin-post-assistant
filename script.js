@@ -13,44 +13,25 @@ async function sendMessage() {
     });
 
     const responseText = await response.text();
-    console.log('Raw response:', responseText); // Debugging helper
+    
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-    if (!response.ok) {
-      // Handle JSON error responses
-      let errorMessage = `HTTP error! status: ${response.status}`;
-      try {
-        const errorData = JSON.parse(responseText);
-        errorMessage = errorData.error || errorMessage;
-      } catch {
-        errorMessage = responseText || errorMessage;
-      }
-      throw new Error(errorMessage);
-    }
-
-    // Handle both possible response formats
-    let title, content;
-    if (responseText.includes('//')) {
-      // Split text response
-      [title, content] = responseText.split('//\n');
-    } else {
-      // Fallback for unexpected JSON
-      try {
-        const jsonData = JSON.parse(responseText);
-        title = jsonData.title || jsonData.message?.title || 'New Post';
-        content = jsonData.content || jsonData.message?.content || 'Content not available';
-      } catch {
-        throw new Error('Invalid response format from server');
-      }
-    }
-
-    // Sanitize output
-    title = title?.trim() || 'Untitled Post';
-    content = content?.trim() || 'No content available';
+    // Split response and format newlines
+    const [title, content] = responseText.split('//\n');
+    
+    // Convert newlines to HTML line breaks and paragraphs
+    const formattedContent = content
+      .split('\n\n') // Split paragraphs
+      .map(paragraph => 
+        paragraph.replace(/\n/g, '<br>') // Convert single newlines to <br>
+      )
+      .join('</p><p>') // Wrap paragraphs in <p> tags
+      .replace(/^(.*)$/, '<p>$1</p>'); // Ensure wrapping
 
     chatbox.innerHTML += `
       <div class="bot-message">
-        <strong>📝 ${title}</strong>
-        <div class="post-content">${content}</div>
+        <strong>📝 ${title.trim()}</strong>
+        <div class="post-content">${formattedContent}</div>
       </div>
     `;
 
