@@ -5,24 +5,27 @@ async function sendMessage() {
   const chatbox = document.getElementById('chatbox');
   chatbox.innerHTML += `<div class="user-message">${userInput}</div>`;
 
-  try {
-    // 1. Send request
-    const response = await fetch('https://n8n-e2tg.onrender.com/webhook/3124586d-9fcc-42dc-8281-0fdc70704fc7', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ message: userInput, url: userInput }),
-  mode: 'cors' // Keep only this CORS-related option
-});
+  // Add typing indicator
+  const typingIndicator = document.createElement('div');
+  typingIndicator.className = 'typing-indicator';
+  typingIndicator.innerHTML = `
+    <div class="typing-dot"></div>
+    <div class="typing-dot" style="animation-delay: 0.2s"></div>
+    <div class="typing-dot" style="animation-delay: 0.4s"></div>
+  `;
+  chatbox.appendChild(typingIndicator);
+  chatbox.scrollTop = chatbox.scrollHeight;
 
-    // 2. Get response text FIRST
+  try {
+    const response = await fetch('https://n8n-e2tg.onrender.com/webhook/3124586d-9fcc-42dc-8281-0fdc70704fc7', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userInput, url: userInput }),
+      mode: 'cors'
+    });
+
     const responseText = await response.text();
 
-    // 3. Detailed error logging
-    console.log('Status:', response.status);
-    console.log('Headers:', [...response.headers]);
-    console.log('Body:', responseText);
-
-    // 4. Check for HTTP errors
     if (!response.ok) {
       let errorData;
       try {
@@ -33,12 +36,14 @@ async function sendMessage() {
       throw new Error(errorData.error || `HTTP Error ${response.status}`);
     }
 
-    // 5. Validate response format
     if (!responseText.includes('//')) {
       throw new Error(`Robot sent bad format: ${responseText.substring(0, 50)}...`);
     }
 
-    // 6. Process response
+    // Remove typing indicator
+    chatbox.removeChild(typingIndicator);
+
+    // Process response
     const [title, content] = responseText.split('//\n');
     const formattedContent = content
       .split('\n\n')
@@ -46,27 +51,49 @@ async function sendMessage() {
       .join('</p><p>')
       .replace(/^(.*)$/, '<p>$1</p>');
 
+    const messageId = Date.now();
     chatbox.innerHTML += `
       <div class="bot-message">
-        <strong>📝 ${title?.trim() || 'New Post'}</strong>
-        <div class="post-content">${formattedContent}</div>
+        <div class="message-header">
+          <strong>📝 ${title?.trim() || 'New Post'}</strong>
+          <button class="copy-btn" onclick="copyToClipboard('${messageId}')">
+            📋 Copy
+          </button>
+        </div>
+        <div id="${messageId}" class="post-content">${formattedContent}</div>
       </div>
     `;
 
   } catch (error) {
-  let errorMessage = error.message;
-  if (error.message.includes('Failed to fetch')) {
-    errorMessage = 'Connection failed! Check: \n1. Internet connection \n2. Server URL \n3. Workflow activation';
+    chatbox.removeChild(typingIndicator);
+    let errorMessage = error.message;
+    if (error.message.includes('Failed to fetch')) {
+      errorMessage = 'Connection failed! Check: \n1. Internet connection \n2. Server URL \n3. Workflow activation';
+    }
+    
+    chatbox.innerHTML += `
+      <div class="error">
+        ❌ Error: ${errorMessage}
+      </div>
+    `;
+    console.error('Full error:', error);
   }
-  
-  chatbox.innerHTML += `
-    <div class="error">
-      ❌ Error: ${errorMessage}
-    </div>
-  `;
-  console.error('Full error:', error);
-}
 
   document.getElementById('userInput').value = '';
   chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+function copyToClipboard(messageId) {
+  const contentDiv = document.getElementById(messageId);
+  const textToCopy = contentDiv.innerText;
+  
+  navigator.clipboard.writeText(textToCopy).then(() => {
+    const btn = document.querySelector(`button[onclick="copyToClipboard('${messageId}')"]`);
+    btn.innerHTML = '✅ Copied!';
+    setTimeout(() => {
+      btn.innerHTML = '📋 Copy';
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
 }
