@@ -89,7 +89,7 @@ async function sendMessage() {
     } else if (error.message.includes('Failed to fetch')) {
       errorMessage = 'Connection failed! Check: \n1. Internet connection \n2. Server URL \n3. Workflow activation';
     } else if (error.message.includes('Demo limit reached')) {
-      errorMessage = `🚨 ${error.message}\nContact me on <a href="https://www.linkedin.com/in/maryam-hmd/" target="_blank" rel="noopener noreferrer">LinkedIn</a> for full access.';
+      errorMessage = `🚨 ${error.message}\This is a demo version. Limited to 10 uses per session. Contact me on <a href="https://www.linkedin.com/in/maryam-hmd/" target="_blank" rel="noopener noreferrer">LinkedIn</a> for full access.';
     }
     
     chatbox.innerHTML += `
