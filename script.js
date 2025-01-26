@@ -17,9 +17,13 @@ async function sendMessage() {
   chatbox.scrollTop = chatbox.scrollHeight;
 
   try {
-    const response = await fetch('https://n8n-e2tg.onrender.com/webhook/3124586d-9fcc-42dc-8281-0fdc70704fc7', {
+    // Use your Cloudflare Worker URL
+    const response = await fetch('https://linkedin-post.maryamhmdaoui.workers.dev/', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Password': 'MyDemoPassword123' // Add a simple password for security
+      },
       body: JSON.stringify({ message: userInput, url: userInput }),
       mode: 'cors'
     });
