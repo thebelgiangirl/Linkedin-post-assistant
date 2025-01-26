@@ -64,6 +64,15 @@ async function sendMessage() {
       </div>
     `;
 
+    // Show demo message (if present)
+    if (responseData.demoMessage) {
+      chatbox.innerHTML += `
+        <div class="demo-message">
+          ${responseData.demoMessage}
+        </div>
+      `;
+    }
+
   } catch (error) {
     chatbox.removeChild(typingIndicator);
     let errorMessage = error.message;
@@ -73,6 +82,8 @@ async function sendMessage() {
       errorMessage = 'Invalid response from the server. Please try again.';
     } else if (error.message.includes('Failed to fetch')) {
       errorMessage = 'Connection failed! Check: \n1. Internet connection \n2. Server URL \n3. Workflow activation';
+    } else if (error.message.includes('Demo limit reached')) {
+      errorMessage = `🚨 ${error.message}\nContact me on LinkedIn https://www.linkedin.com/in/maryam-hmd/ for full access.`;
     }
     
     chatbox.innerHTML += `
