@@ -21,34 +21,35 @@ async function sendMessage() {
     const response = await fetch('https://linkedin-post.maryamhmdaoui.workers.dev/', {
       method: 'POST',
       headers: { 
-        'Content-Type': 'application/json',
-        'X-Password': 'MyDemoPassword123' // Add a simple password for security
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ message: userInput, url: userInput }),
       mode: 'cors'
     });
 
-    const responseText = await response.text();
+    // Parse the response as JSON
+    const responseData = await response.json();
 
+    // Handle errors
     if (!response.ok) {
-      let errorData;
-      try {
-        errorData = JSON.parse(responseText);
-      } catch {
-        errorData = { error: responseText };
-      }
-      throw new Error(errorData.error || `HTTP Error ${response.status}`);
+      throw new Error(responseData.error || `HTTP Error ${response.status}`);
     }
 
-    if (!responseText.includes('//')) {
-      throw new Error(`Robot sent bad format: ${responseText.substring(0, 50)}...`);
+    // Show demo message (if present)
+    if (responseData.demoMessage) {
+      console.log(responseData.demoMessage); // Log to console or display in UI
+    }
+
+    // Check response format
+    if (!responseData.data || !responseData.data.includes('//')) {
+      throw new Error(`Robot sent bad format: ${responseData.data?.substring(0, 50) || 'No data'}...`);
     }
 
     // Remove typing indicator
     chatbox.removeChild(typingIndicator);
 
     // Process response
-    const [title, content] = responseText.split('//\n');
+    const [title, content] = responseData.data.split('//\n');
     const formattedContent = content
       .split('\n\n')
       .map(p => p.replace(/\n/g, '<br>'))
@@ -71,7 +72,11 @@ async function sendMessage() {
   } catch (error) {
     chatbox.removeChild(typingIndicator);
     let errorMessage = error.message;
-    if (error.message.includes('Failed to fetch')) {
+
+    // Handle rate limit error
+    if (error.message.includes('Demo limit reached')) {
+      errorMessage = `🚨 ${error.message}\nContact me at your.email@example.com for full access.`;
+    } else if (error.message.includes('Failed to fetch')) {
       errorMessage = 'Connection failed! Check: \n1. Internet connection \n2. Server URL \n3. Workflow activation';
     }
     
