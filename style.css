@@ -10,17 +10,7 @@ body {
   margin: 0;
   padding: 20px;
 }
-/* Demo message styling */
-.demo-message {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-  padding: 10px;
-  border-radius: 8px;
-  margin: 10px 0;
-  text-align: center;
-  font-size: 0.9em;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-}
+
 /* Main container */
 .chat-container {
   width: 100%;
@@ -224,4 +214,38 @@ button:hover {
   border: 1px solid #ff6b6b;
   border-radius: 8px;
   margin: 10px 0;
+}
+
+/* Demo message styling */
+.demo-message {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 10px;
+  border-radius: 8px;
+  margin: 10px 0;
+  text-align: center;
+  font-size: 0.9em;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Link styling inside demo message */
+.demo-message a {
+  color: white; /* White text */
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.demo-message a:hover {
+  color: #e0f2fe; /* Light blue on hover */
+}
+
+/* Link styling inside error message */
+.error a {
+  color: white; /* White text */
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.error a:hover {
+  color: #e0f2fe; /* Light blue on hover */
 }
