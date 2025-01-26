@@ -35,11 +35,6 @@ async function sendMessage() {
       throw new Error(responseData.error || `HTTP Error ${response.status}`);
     }
 
-    // Show demo message (if present)
-    if (responseData.demoMessage) {
-      console.log(responseData.demoMessage); // Log to console or display in UI
-    }
-
     // Check response format
     if (!responseData.data || !responseData.data.includes('//')) {
       throw new Error(`Robot sent bad format: ${responseData.data?.substring(0, 50) || 'No data'}...`);
@@ -73,9 +68,9 @@ async function sendMessage() {
     chatbox.removeChild(typingIndicator);
     let errorMessage = error.message;
 
-    // Handle rate limit error
-    if (error.message.includes('Demo limit reached')) {
-      errorMessage = `🚨 ${error.message}\nContact me at your.email@example.com for full access.`;
+    // Handle specific errors
+    if (error.message.includes('Unexpected token')) {
+      errorMessage = 'Invalid response from the server. Please try again.';
     } else if (error.message.includes('Failed to fetch')) {
       errorMessage = 'Connection failed! Check: \n1. Internet connection \n2. Server URL \n3. Workflow activation';
     }
